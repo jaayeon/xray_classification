@@ -4,6 +4,8 @@ from torchvision.transforms import Compose, ToTensor, Resize, Normalize
 import numpy as np
 from PIL import Image, ImageFilter
 import cv2
+import pandas as pd
+
 
 def stack_img(opt, idx, img_list):
 
@@ -21,17 +23,45 @@ def stack_img(opt, idx, img_list):
 
     return
 
-def get_label_list(opt):
-    energy = opt.energy.split(',')
-    train_dir = opt.train_dir
-    #csv file찾아서 원하는 e만 stack 해서 return
-
-    return
 
 def get_img_list(opt):
 
+    energy = opt.energy.split(',')
+    kinds = opt.kinds.split(',')
 
-    return 
+    train_dir = opt.train_dir
+
+    img_list = []
+
+    for edir in energy : 
+        fpath = os.path.join(train_dir, edir)
+        files = os.listdir(fpath)
+        for f in files : 
+            if f.endswith('.xlsx') : 
+                table = pd.read_excel(os.path.join(fpath,f)).values.tolist()
+                img_list.extend(table)
+
+    return img_list
+
+
+def get_label_list(opt):
+
+    energy = opt.energy.split(',')
+
+    train_dir = opt.train_dir
+
+    label_list = []
+
+    for edir in energy : 
+        fpath = os.path.join(train_dir, edir)
+        files = os.listdir(fpath)
+        for f in files : 
+            if f.endswith('.xlsx') : 
+                table = pd.read_excel(os.path.join(fpath,f)).values.tolist()
+                label_list.extend(table)
+
+    return label_list
+
 
 
 def is_image_file(filename):
@@ -49,8 +79,8 @@ class trainDataset(data.Dataset) :
     def __init__(self, opt):
         super(trainDataset, self).__init__()
 
-        train_dir = opt.train_dir
-        train_label_dir = opt.train_label_dir
+        # train_dir = opt.train_dir
+        # train_label_dir = opt.train_label_dir
 
         self.img_list = get_img_list(opt)
         self.img_label_list = get_label_list(opt)
