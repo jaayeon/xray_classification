@@ -32,7 +32,7 @@ parser.add_argument('--valid_label_dir', type=str, default = valid_label_dir)
 parser.add_argument('--test_label_dir', type=str, default = test_label_dir)
 
 parser.add_argument('--img_kinds', type=str, default='abs,scatt',
-                    help='abs,scatt,fftphs' )
+                    help='Abs, FFTPhs, Scatt' )
 parser.add_argument('--energy', type='str', default='e1,e2',
                     help='e1,e2,e3,e4')
 

@@ -7,68 +7,60 @@ import cv2
 import pandas as pd
 
 
-def stack_img(opt, idx, img_list):
+def stack_img(opt, img_path, img_id):
 
-    file_path = img_list[idx]
-
-    img_arr = np.fromfile(file_path, dtype = np.double).reshape(71,71)
-    
+    #Abs, FFTPhs, Scatt
     kinds = opt.img_kinds.split(',')
-    energy = opt.energy.split(',')
+
+    for kind in kinds : 
+        img_path = os.path.join(img_path, kind)
+        img = kind + 'Img_' + img_id + '.IMG'
+        # img_arr = np.fromfile(img, dtype = np.double).reshape(71,71)
+        IMG = open(img, 'r')
+        IMG_arr = np.fromfile(IMG, dtype = np.double).reshape(71,71)
+
+
 
     train_dir = opt.train_dir
-
-
-
 
     return
 
 
-def get_img_list(opt):
+
+def get_list(opt):
 
     energy = opt.energy.split(',')
-    kinds = opt.kinds.split(',')
 
     train_dir = opt.train_dir
 
-    img_list = []
+    all_list = []
 
     for edir in energy : 
         fpath = os.path.join(train_dir, edir)
         files = os.listdir(fpath)
         for f in files : 
             if f.endswith('.xlsx') : 
+                fn = '_'.join(f.split('_')[0:2])
+                fn = os.path.join(fpath, fn)
+
                 table = pd.read_excel(os.path.join(fpath,f)).values.tolist()
-                img_list.extend(table)
+                for i in range(len(table)):
+                    table[i][0] = fn + '_' + str(table[i][0]) 
 
-    return img_list
+                all_list.extend(table)
 
 
-def get_label_list(opt):
+    return all_list
 
-    energy = opt.energy.split(',')
 
-    train_dir = opt.train_dir
-
-    label_list = []
-
-    for edir in energy : 
-        fpath = os.path.join(train_dir, edir)
-        files = os.listdir(fpath)
-        for f in files : 
-            if f.endswith('.xlsx') : 
-                table = pd.read_excel(os.path.join(fpath,f)).values.tolist()
-                label_list.extend(table)
-
-    return label_list
 
 
 
 def is_image_file(filename):
-    return any(filename.endswith(extension) for extension in ['.jpg', '.png'])
+    return any(filename.endswith(extension) for extension in ['.IMG'])
 
 def input_transform(opt):
-    #compose = Compose([ToTensor(), Normalize((0.485,0.456,0.406), (0.229,0.224,0.225))])
+    compose = Compose([ToTensor(), Normalize((0.485,0.456,0.406), (0.229,0.224,0.225))])
     compose = Compose([ToTensor()])
     return compose
 
@@ -78,22 +70,23 @@ def input_transform(opt):
 class trainDataset(data.Dataset) :
     def __init__(self, opt):
         super(trainDataset, self).__init__()
-
-        # train_dir = opt.train_dir
-        # train_label_dir = opt.train_label_dir
-
-        self.img_list = get_img_list(opt)
-        self.img_label_list = get_label_list(opt)
+        
+        #img_list = [name, label]
+        self.all_list = get_list(opt)
         #self.img_list = [os.path.join(train_dir, x) for x in os.listdir(train_dir) if is_image_file(x)]
         #self.img_label_list = np.loadtxt("%s.csv"%(train_label_dir), delimiter=',')
 
         self.input_trasform = input_transform(opt)
 
     def __getitem__(self, idx):
-        print('loading', self.img_list[idx])
+        print('loading train dataset', self.all_list[idx])
         #img = Image.open(self.img_list[idx])
         #img = cv2.imread(self.img_list[idx], cv2.GRAY_SCALE)
-        img = stack_img(opt, idx, self.img_list)
+        img_path_id = self.all_list[idx][0]
+        img_path = ('_').join(img_path_id.split('_')[:-2])
+        img_id = ('_').join(img_path_id.split('_')[-2:])
+
+        img = stack_img(opt, img_path, img_id)
 
         img_id = os.path.basename(self.img_list[idx])[:-4]
         img_label_id = img_label_list[idx,0]
