@@ -1,7 +1,7 @@
 import os
 import torch.utils import data
 import torch.utils.data import DatatLoader
-from data.x_ray_dataset import trainDataset, testDataset 
+from data_processing import trainDataset, testDataset 
 
 
 def get_train_valid_data_loader(opt):
@@ -13,11 +13,12 @@ def get_train_valid_data_loader(opt):
     train_dataset, valid_dataset = data.random_split(x_ray_data, lengths = [train_len, valid_len] )
     train_data_loader = DatatLoader(dataset=train_dataset,
                                     batch_size = opt.batch_size,
-                                    shuffle = True,)
+                                    shuffle = True, num_workders=2)
+    #num_workers : multi-threading
 
     valid_data_loader = DatatLoader(dataset=valid_dataset,
                                     batch_size = opt.batch_size,
-                                    shuffle = False)
+                                    shuffle = False, num_workers = 2)
 
     return train_data_loader, valid_data_loader
 
@@ -28,6 +29,6 @@ def get_test_data_loader(opt):
 
     test_data_loader = DataLoader(datasest=x_ray_data, 
                                 batch_size = opt.batch_size,
-                                shuffle = False)
+                                shuffle = False, num_workers = 2)
     return test_data_loader
 
