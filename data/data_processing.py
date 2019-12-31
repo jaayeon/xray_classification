@@ -26,17 +26,16 @@ def stack_img(opt, img_path_id):
         #img_id = 0_90 
         #img = AbsImg_0_90.IMG
         img = kind + 'Img_' + img_id + '.IMG'
-        # img_arr = np.fromfile(img, dtype = np.double).reshape(71,71)
         IMG = open(os.path.join(img_path_kind, img), 'r')
-        IMG_arr = np.fromfile(IMG, dtype = np.double).reshape(71,71)
+        # IMG_arr = np.fromfile(IMG, dtype = np.double).reshape(71,71)
+        IMG_arr = np.fromfile(IMG, dtype = np.double)
+        
+        IMG_st = np.append(IMG_st, IMG_arr)
+    
+    #IMG_st : (C,W,H)
+    IMG_st = IMG_st.reshape(len(kinds), 71,71)
 
-        IMG_st.append(IMG_arr)
-
-
-
-    train_dir = opt.train_dir
-
-    return
+    return IMG_st
 
 
 def label2class(label):     # one hot encoding (0-2 --> [., ., .])
@@ -46,7 +45,7 @@ def label2class(label):     # one hot encoding (0-2 --> [., ., .])
     if label == 0:		cls = 0;    resvec[cls] = 1
     elif label == 1:	cls = 1;    resvec[cls] = 1
     elif label == 2:	cls = 2;    resvec[cls] = 1
-    else : print('label error')
+    else : print('label error... not one of 0,1,2')
 
     return resvec
 
@@ -71,18 +70,16 @@ def name2class(name):
 
 
 
-
-
 def get_list(opt):
 
     energy = opt.energy.split(',')
 
-    train_dir = opt.train_dir
+    data_dir = opt.data_dir
 
     all_list = []
 
     for edir in energy : 
-        fpath = os.path.join(train_dir, edir)
+        fpath = os.path.join(data_dir, edir)
         files = os.listdir(fpath)
         for f in files : 
             if f.endswith('.xlsx') : 
@@ -109,13 +106,13 @@ def input_transform(opt):
 
 
 
-class trainDataset(data.Dataset) :
+class DatasetFromFolder(data.Dataset) :
     def __init__(self, opt):
-        super(trainDataset, self).__init__()
+        super(DatasetFromFolder, self).__init__()
         
         #img_list = [name, label]
         self.all_list = get_list(opt)
-        #self.img_list = [os.path.join(train_dir, x) for x in os.listdir(train_dir) if is_image_file(x)]
+        #self.img_list = [os.path.join(data_dir, x) for x in os.listdir(data_dir) if is_image_file(x)]
         #self.img_label_list = np.loadtxt("%s.csv"%(train_label_dir), delimiter=',')
 
         self.input_transform = input_transform(opt)
@@ -145,25 +142,25 @@ class trainDataset(data.Dataset) :
         return len(self.all_list)
 
 
-class testDataset(data.Dataset):
-    def __init__(self, opt):
-        super(testDataset, self).__init__()
+# class testDataset(data.Dataset):
+#     def __init__(self, opt):
+#         super(testDataset, self).__init__()
 
-        if opt.mode =='test':
-            img_dir = opt.test_dir
-        if opt.mode == 'valid':
-            img_dir = opt.valid_dir
+#         if opt.mode =='test':
+#             img_dir = opt.test_dir
+#         if opt.mode == 'valid':
+#             img_dir = opt.valid_dir
 
-        self.input_transform = input_transform(opt)
-        self.img_list = [os.path.join(img_dir, x) for x in os.listdir(img_dir) if is_image_file(x)]
+#         self.input_transform = input_transform(opt)
+#         self.img_list = [os.path.join(img_dir, x) for x in os.listdir(img_dir) if is_image_file(x)]
 
-    def __getitem__(self, idx):
-        img = cv2.imread(self.img_list[idx])
-        img_name = os.path.basename(self.img_list[idx])
+#     def __getitem__(self, idx):
+#         img = cv2.imread(self.img_list[idx])
+#         img_name = os.path.basename(self.img_list[idx])
 
-        img = self.input_transform(img)
+#         img = self.input_transform(img)
 
-        return img, img_name
+#         return img, img_name
 
-    def __len__(self):
-        return len(self.img_list)
+#     def __len__(self):
+#         return len(self.img_list)
