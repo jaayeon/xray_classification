@@ -7,10 +7,10 @@ import cv2
 import pandas as pd
 
 
-def stack_img(opt, img_path_id):
+def stack_img(img_kinds, img_path_id):
 
     #Abs, FFTPhs, Scatt
-    kinds = opt.img_kinds.split(',')
+    kinds = img_kinds.split(',')
 
     #img_path_id = D:/data/xray-classification/e1/E1_Flour_0_90
     #[:-2] : D:/data/xray-classification/e1/E1_Flour
@@ -54,17 +54,17 @@ def label2class(label):     # one hot encoding (0-2 --> [., ., .])
 def name2class(name):
 
     resvec = [0,0,0]
-    if 'Flour' in name:     
+    if 'flour' in name:     
         cls = 0
         resvec[cls] = 1
-    elif 'Salt' in name :       
-        cls = 0
+    elif 'salt' in name :       
+        cls = 1
         resvec[cls] = 1
-    elif 'Sugar' in name : 
-        cls = 0
+    elif 'sugar' in name : 
+        cls = 2
         resvec[cls] = 1
 
-    else : print('img_path_id not include Flour,Salt,Sugar')
+    else : print('img_path_id not include flour,salt,sugar')
 
     return resvec
 
@@ -100,8 +100,8 @@ def get_list(opt):
 
 
 def input_transform(opt):
-    compose = Compose([ToTensor(), Normalize((0.485,0.456,0.406), (0.229,0.224,0.225))])
-    # compose = Compose([ToTensor()])
+    # compose = Compose([ToTensor(), Normalize((0.485,0.456,0.406), (0.229,0.224,0.225))])
+    compose = Compose([ToTensor()])
     return compose
 
 
@@ -116,9 +116,10 @@ class DatasetFromFolder(data.Dataset) :
         #self.img_label_list = np.loadtxt("%s.csv"%(train_label_dir), delimiter=',')
 
         self.input_transform = input_transform(opt)
+        self.img_kinds = opt.img_kinds
 
     def __getitem__(self, idx):
-        print('loading train dataset', self.all_list[idx])
+        # print('loading train dataset', self.all_list[idx])
         
         #get list id & mk to img path
 
@@ -128,39 +129,23 @@ class DatasetFromFolder(data.Dataset) :
         img_label = self.all_list[idx][1]
 
 
-        img = stack_img(opt, img_path_id)
-        img_class = label2class(opt, img_label)
+        img = stack_img(self.img_kinds, img_path_id)
+        img_class = label2class(img_label)
 
-        img = self.input_transform(img)
+        # img = self.input_transform(img)
 
         if img_class != name2class(img_path_id) : 
+            print('img_class : ' , img_class)
+            print('img_path_id : ', name2class(img_path_id))
             raise ValueError('img_id is different from img_label')
+
+        # print("\n\n&&&&&&&&&&&&&&&&&&&&&&&&&&CHECKING THE SIZE OF IMG#####################\n\n")
+        # print(img.shape)
+        # print("\n\n&&&&&&&&&&&&&&&&&&&&&&&&&&CHECKING THE SIZE OF IMG#####################\n\n")
+        img_class = np.array(img_class)
         
         return img, img_class, img_path_id
 
     def __len__(self):
         return len(self.all_list)
 
-
-# class testDataset(data.Dataset):
-#     def __init__(self, opt):
-#         super(testDataset, self).__init__()
-
-#         if opt.mode =='test':
-#             img_dir = opt.test_dir
-#         if opt.mode == 'valid':
-#             img_dir = opt.valid_dir
-
-#         self.input_transform = input_transform(opt)
-#         self.img_list = [os.path.join(img_dir, x) for x in os.listdir(img_dir) if is_image_file(x)]
-
-#     def __getitem__(self, idx):
-#         img = cv2.imread(self.img_list[idx])
-#         img_name = os.path.basename(self.img_list[idx])
-
-#         img = self.input_transform(img)
-
-#         return img, img_name
-
-#     def __len__(self):
-#         return len(self.img_list)

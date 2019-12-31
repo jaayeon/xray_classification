@@ -1,7 +1,7 @@
 import os
-import torch.utils import data
-import torch.utils.data import DatatLoader
-from data_processing import DatasetFromFolder
+from torch.utils import data
+from torch.utils.data import DataLoader
+from data.data_processing import DatasetFromFolder
 
 
 # def get_train_valid_data_loader(opt):
@@ -42,18 +42,18 @@ def get_data_loader(opt):
     test_len = int(len(dataset) - train_len - valid_len) 
 
     train_dataset, valid_dataset, test_dataset = data.random_split(dataset,lengths = [train_len, valid_len, test_len] )
-    train_data_loader = DatatLoader(dataset=train_dataset,
+    train_data_loader = DataLoader(dataset=train_dataset,
                                     batch_size = opt.batch_size,
-                                    shuffle = True, num_workders=2)
+                                    shuffle = True)
     #num_workers : multi-threading
 
-    valid_data_loader = DatatLoader(dataset=valid_dataset,
+    valid_data_loader = DataLoader(dataset=valid_dataset,
                                     batch_size = opt.batch_size,
-                                    shuffle = False, num_workers = 2)
+                                    shuffle = False)
 
-    test_data_loader = DatatLoader(dataset=test_dataset,
+    test_data_loader = DataLoader(dataset=test_dataset,
                                     batch_size = opt.batch_size,
-                                    shuffle = False, num_workers = 2)                            
+                                    shuffle = False)                            
 
     return train_data_loader, valid_data_loader, test_data_loader
 
