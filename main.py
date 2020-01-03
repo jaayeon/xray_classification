@@ -69,23 +69,6 @@ def run_train(opt, training_data_loader, validation_data_loader):
         save_checkpoint(opt, net, epoch, valid_loss)
 
 
-if __name__ == "__main__":
-
-    opt = args
-    print(opt)
-    data_dir = opt.data_dir
-    print('data_dir is : {}'.format(data_dir))
-
-    training_data_loader, validation_data_loader, test_data_loader = get_data_loader(opt)
-
-    if opt.mode is 'train' :
-        run_train(opt, training_data_loader, validation_data_loader )
-    # elif opt.mode is 'test' :
-    #     test_model(opt, test_data_loader)
-
-
-
-
 
 def test_model(opt, test_data_loader):
     print('===> Test')
@@ -122,8 +105,8 @@ def test_model(opt, test_data_loader):
                 label = label.to(opt.device, dtype = torch.float)
             out = net(x)
 
-            print('output>>>', out)
-            print('\nlabel>>>', label)
+            # print('output>>>', out)
+            # print('\nlabel>>>', label)
 
             
             _, pred = torch.max(out.data,1)
@@ -133,9 +116,22 @@ def test_model(opt, test_data_loader):
 
     total_acc = 100.*total_correct/len(test_data_loader.dataset)
 
-    print('/nTest ===> ACC : %d/%d (%3.4f%%)\n'%(total_correct, len(test_data_loader.dataset), total_acc))
+    print('\nTEST RESULT ===> ACC : %d/%d (%3.4f%%)\n'%(total_correct, len(test_data_loader.dataset), total_acc))
 
 
         
 
 
+if __name__ == "__main__":
+
+    opt = args
+    print(opt)
+    data_dir = opt.data_dir
+    print('data_dir is : {}'.format(data_dir))
+
+    training_data_loader, validation_data_loader, test_data_loader = get_data_loader(opt)
+
+    if opt.mode is 'train' :
+        run_train(opt, training_data_loader, validation_data_loader )
+    else : 
+        test_model(opt, test_data_loader)

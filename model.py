@@ -38,6 +38,7 @@ class VGG(nn.Module):
         #512 1 1
         self.classifier = nn.Linear(512*2*2, 3)
 
+
     def forward(self,x):
         features = self.conv(x)
         # features = self.avg_pool(features)
