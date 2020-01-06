@@ -30,11 +30,9 @@ def train(opt, model, optimizer, data_loader, loss_criterion):
         optimizer.step()
 
         total_loss +=loss.item()
-        
-        # pred = out.max(1, keepdim = True)[1]
+
         _, pred = torch.max(out.data,1)
         _, label = torch.max(label.data,1)
-        # total_correct += pred.eq(out.view_as(pred)).sum().item()
         # print(out)
         # print(pred)
         # print(label)

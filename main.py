@@ -29,7 +29,7 @@ def run_train(opt, training_data_loader, validation_data_loader):
         opt.start_epoch, net = load_model(opt, opt.checkpoint_dir)
     else : 
         with open(log_file, mode = 'w') as f:
-            f.write('epoch, train_loss, valid_loss\n')
+            f.write('epoch, train_loss, train_acc, valid_loss, valid_acc\n')
 
     print('===> Setting GPU')
     print('CUDA Available', torch.cuda.is_available())
@@ -98,19 +98,22 @@ def test_model(opt, test_data_loader):
 
     with torch.no_grad():
         for i, batch in enumerate(tqdm(test_data_loader),1):
-            x, label = batch[0], batch[1]
+            x, label, name = batch[0], batch[1], batch[2]
             
             if opt.use_cuda :
                 x = x.to(opt.device, dtype = torch.float)
                 label = label.to(opt.device, dtype = torch.float)
             out = net(x)
 
-            # print('output>>>', out)
-            # print('\nlabel>>>', label)
+            print('\noutput>>>\n', out)
+            print('\n\nlabel>>>\n', label)
+            print('\n\nimg_id>>>\n',name)
 
             
             _, pred = torch.max(out.data,1)
             _, label = torch.max(label.data,1)
+
+            print('\n\noutput-max>>>\n',pred)
 
             total_correct += (pred == label).sum().item()
 

@@ -14,7 +14,7 @@ test_label_dir = os.path.join(data_dir, 'test_label.csv')
 parser = argparse.ArgumentParser(description='X-RAY classification')
 
 parser.add_argument('--mode', type=str, default='train',
-                    help='train, valid, test')
+                    help='train, test')
 parser.add_argument('--use_cuda', type=bool, default=True)
 parser.add_argument('--device', type = str, default = 'cpu')
 parser.add_argument('--resume_best', action='store_true',

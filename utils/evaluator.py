@@ -21,7 +21,6 @@ def evaluate(opt, model, data_loader, loss_criterion):
                 label = label.to(opt.device, dtype = torch.float)
 
             out = model(x)
-            # label = label.to(torch.float)
 
             loss = loss_criterion(out, label)
             total_loss += loss.item()

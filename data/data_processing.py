@@ -98,7 +98,7 @@ def get_list(opt):
 
 
 
-
+#안씀
 def input_transform(opt):
     # compose = Compose([ToTensor(), Normalize((0.485,0.456,0.406), (0.229,0.224,0.225))])
     compose = Compose([ToTensor()])
@@ -112,8 +112,6 @@ class DatasetFromFolder(data.Dataset) :
         
         #img_list = [name, label]
         self.all_list = get_list(opt)
-        #self.img_list = [os.path.join(data_dir, x) for x in os.listdir(data_dir) if is_image_file(x)]
-        #self.img_label_list = np.loadtxt("%s.csv"%(train_label_dir), delimiter=',')
 
         self.input_transform = input_transform(opt)
         self.img_kinds = opt.img_kinds
@@ -131,8 +129,6 @@ class DatasetFromFolder(data.Dataset) :
 
         img = stack_img(self.img_kinds, img_path_id)
         img_class = label2class(img_label)
-
-        # img = self.input_transform(img)
 
         if img_class != name2class(img_path_id) : 
             print('img_class : ' , img_class)
